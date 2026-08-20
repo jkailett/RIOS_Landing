@@ -107,14 +107,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Buat payment link Mayar
+    // Buat payment link Mayar (unique name per request)
     const amountRupiah = total * 1000; // base rates in thousand IDR -> Rupiah
     const packageName = `RIOS-${packageId}`;
-    const linkName = existingClient
-      ? `${packageName}-${months}-Bulan-(Perpanjangan)`
-      : `${packageName}-${months}-Bulan-+-Setup`;
+    const suffix = existingClient ? "Renewal" : "New";
+    const linkName = `${packageName}-${months}mo-${suffix}`;
+    const orderId = `RIOS-${Date.now().toString(36).toUpperCase()}`;
 
-    const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://rioskreasindo.site"}/?payment=success`;
+    const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://rioskreasindo.site"}/?payment=success&order=${orderId}`;
 
     const mayarRes = await fetch(MAYAR_API_URL, {
       method: "POST",
