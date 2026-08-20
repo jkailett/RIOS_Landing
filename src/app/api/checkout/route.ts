@@ -107,11 +107,11 @@ export async function POST(req: NextRequest) {
     const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://rioskreasindo.site"}/?payment=success`;
 
     const mayarRes = await fetch(MAYAR_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.MAYAR_API_KEY || ""}`,
-      },
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.MAYAR_API_KEY || ""}`,
+          },
       body: JSON.stringify({
         name: linkName,
         amount: amountRupiah,
