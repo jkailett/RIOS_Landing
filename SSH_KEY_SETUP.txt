@@ -1,0 +1,38 @@
+🔑 **GITHUB SETUP — Add SSH Key**
+
+Gue sudah generate SSH key di server. Sekarang Yoga perlu add public key ke GitHub.
+
+═══════════════════════════════════════════════════════════════════
+
+📋 PUBLIC KEY (Copy this):
+
+```
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqJVyJVOIUjcqFmoQ7HcsNPYKy26ivNBdknOH83o1Gm rios-landing-deploy
+```
+
+═══════════════════════════════════════════════════════════════════
+
+✅ **Steps untuk Yoga:**
+
+1. Go to: https://github.com/settings/keys
+2. Click "New SSH key"
+3. Title: `rios-landing-deploy`
+4. Key type: Authentication Key
+5. Key: **Paste the public key above** ☝️
+6. Click "Add SSH key"
+7. **Verifikasi password GitHub jika diminta**
+
+═══════════════════════════════════════════════════════════════════
+
+⏳ **Tunggu Sampai Key Added**
+
+Kalau sudah di-add, Jaden (di server) akan:
+```bash
+git push -u origin master
+```
+
+Dan semua commits akan ter-push ke GitHub.
+
+═══════════════════════════════════════════════════════════════════
+
+Udah di-add? Kasih tahu Jaden! 👇

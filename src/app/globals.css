@@ -1,0 +1,180 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+  html, body {
+    background: linear-gradient(135deg, #020203 0%, #050506 50%, #0a0a0c 100%);
+    background-attachment: fixed;
+  }
+  body {
+    @apply bg-dark-deep text-fg-primary font-body antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display text-fg-primary;
+  }
+  ::selection {
+    background: rgba(94, 106, 210, 0.3);
+    color: #EDEDEF;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+  }
+
+  /* Primary CTA — Indigo with glow */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-[16px]
+      bg-accent-primary text-white px-7 py-3.5 font-semibold
+      transition-all duration-300 ease-expo-out
+      hover:shadow-glow-lg hover:-translate-y-0.5 hover:scale-[1.02]
+      active:scale-[0.98] active:shadow-glow
+      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-deep focus:ring-accent-primary;
+    box-shadow: 0 0 20px rgba(94, 106, 210, 0.2);
+  }
+
+  /* Secondary CTA — Glassmorphic outline */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-[16px]
+      border border-border-subtle px-7 py-3.5 font-semibold text-fg-primary
+      transition-all duration-300 ease-expo-out
+      hover:border-accent-primary hover:text-accent-primary hover:-translate-y-0.5 hover:bg-surface
+      active:scale-[0.98]
+      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-deep focus:ring-accent-primary;
+    backdrop-filter: blur(8px);
+  }
+
+  /* Section label — Accent text */
+  .section-label {
+    @apply text-xs font-bold uppercase tracking-widest text-accent-primary;
+  }
+
+  /* Glassmorphic card */
+  .glass-card {
+    @apply rounded-2xl border border-border-subtle bg-surface backdrop-blur-md
+      p-6 transition-all duration-300 ease-expo-out;
+  }
+
+  /* Glass card with hover interaction */
+  .glass-card-hover {
+    @apply glass-card hover:border-accent-primary/50 hover:bg-white/[0.08]
+      hover:-translate-y-1 hover:shadow-card-hover;
+  }
+
+  /* Elevated card (no glass, solid dark) */
+  .elevated-card {
+    @apply rounded-2xl border border-border-subtle bg-dark-elevated
+      p-6 transition-all duration-300 ease-expo-out
+      hover:border-accent-primary/50 hover:-translate-y-1 hover:shadow-card-hover;
+  }
+}
+
+@layer utilities {
+  /* Reveal animation (scroll-triggered in JS) */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  .reveal.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+  .reveal-delay-5 { transition-delay: 0.5s; }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+    .animate-blob-float,
+    .animate-glow-pulse {
+      animation: none;
+    }
+  }
+
+  /* Gradient text (Indigo to Blue) */
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .gradient-text {
+    background: linear-gradient(270deg, #5E6AD2, #3B82F6, #06B6D4, #5E6AD2);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 8s ease infinite;
+  }
+
+  /* Animated ambient blobs */
+  @keyframes blob-slow {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+  .blob-animated {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.08;
+    animation: blob-slow 8s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  /* Glow pulse for CTA */
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 5px rgba(94, 106, 210, 0.3), 0 0 20px rgba(94, 106, 210, 0.1); }
+    50% { box-shadow: 0 0 15px rgba(94, 106, 210, 0.5), 0 0 40px rgba(94, 106, 210, 0.2); }
+  }
+  .animate-glow-pulse {
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  /* Smooth scroll snap */
+  .snap-smooth {
+    scroll-snap-type: y proximity;
+    scroll-behavior: smooth;
+  }
+  .snap-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  /* Accessibility: Focus visible */
+  .focus-visible:focus {
+    outline: 2px solid #5E6AD2;
+    outline-offset: 2px;
+  }
+
+  /* Text utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Cursor pointer on interactive elements */
+  button, [role="button"], input[type="submit"], a[href], label {
+    @apply cursor-pointer;
+  }
+}

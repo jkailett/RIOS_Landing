@@ -1,0 +1,26 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Model untuk verifikasi MOU RIOS
+model RiosMou {
+  id          Int      @id @default(autoincrement())
+  mou_number  String   @unique @db.VarChar(50)  // Format: RIOS-{KODE}-{TAHUN}-{NO}
+  client_name String   @db.VarChar(200)
+  package     String   @db.VarChar(50)          // FOUNDATION, GROWTH, REVENUE
+  status      String   @default("active") @db.VarChar(20)  // active, expired, terminated
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  expires_at  DateTime?
+
+  @@map("RiosMou")
+}
