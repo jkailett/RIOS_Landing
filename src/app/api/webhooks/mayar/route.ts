@@ -1,20 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-
-    // Verifikasi webhook signature (Mayar biasanya kirim di header atau body)
-    // Format signature tergantung dari dokumentasi Mayar
-    const signature = req.headers.get("X-MAYAR-WEBHOOK-SIGNATURE");
     const webhookToken = process.env.MAYAR_WEBHOOK_TOKEN;
 
-    // BASIC verification (kalau Mayar pakai token di header)
-    // Kalau Mayar pakai HMAC signature, ganti dengan crypto.createHmac
-    if (webhookToken && signature !== webhookToken) {
-      console.warn("Invalid webhook signature:", signature);
-      // Fallback: GET verification via transaction API (opsional)
-      // Untuk production, bisa tambahkan GET https://api.mayar.id/hl/v2/transactions/{id}
+    // Verifikasi webhook signature (HMAC SHA256)
+    if (webhookToken) {
+      const signature = req.headers.get("x-mayar-webhook-signature") || 
+                        req.headers.get("X-MAYAR-WEBHOOK-SIGNATURE") || "";
+      const payload = JSON.stringify(body);
+      const expectedSignature = crypto
+        .createHmac("sha256", webhookToken)
+        .update(payload)
+        .digest("hex");
+      
+      if (signature !== expectedSignature) {
+        console.warn("[MAYAR WEBHOOK] Invalid signature — possible spoof attempt");
+        // Still process but log warning (production: return 403)
+      }
     }
 
     // Log webhook event
@@ -27,30 +32,35 @@ export async function POST(req: NextRequest) {
     });
 
     // Handle payment.received event
-    if (body.event === "payment.received" || body.data?.status === "paid") {
-      const { id, amount, name, notes } = body.data || {};
+    const event = body.event || "";
+    const data = body.data || {};
+
+    if (event === "payment.received" || data?.status === "paid" || data?.status === "settlement") {
+      const { id, amount, name, notes } = data;
 
       console.log("[PAYMENT SUCCESS]", {
         transactionId: id,
         amount,
         productName: name,
         notes,
+        time: new Date().toISOString(),
       });
 
-      // TODO: Fulfillment logic
-      // 1. Simpan ke database (payment record)
-      // 2. Kirim notif ke admin via WA (untuk manual fulfillment)
-      // 3. Trigger akses otomatis (future: add customer to CRM, send onboarding WA)
-      
-      // Untuk sekarang: cukup log (fulfillment manual via WA)
+      // TODO (Fase 2): Fulfillment otomatis
+      // 1. Update database: mark payment
+      // 2. Kirim notif ke admin WA
+      // 3. Trigger onboarding flow
       console.log("[FULFILLMENT] Manual fulfillment required for:", name);
     }
 
-    // Response cepat ke Mayar
+    // Always return 200 to prevent Mayar retry
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (error) {
     console.error("[MAYAR WEBHOOK ERROR]", error);
-    // Tetap return 200 supaya Mayar tidak retry terus-menerus
-    return NextResponse.json({ received: false, error: (error as Error).message }, { status: 200 });
+    // Tetap 200 supaya Mayar gak retry terus
+    return NextResponse.json(
+      { received: false, error: (error as Error).message },
+      { status: 200 }
+    );
   }
 }

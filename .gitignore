@@ -8,11 +8,14 @@ node_modules/
 .next/
 out/
 
-# Environment
-.env*
+# Environment — block secrets but allow .env.example
+.env
 .env.local
+.env.development
 .env.development.local
+.env.test
 .env.test.local
+.env.production
 .env.production.local
 
 # Vercel

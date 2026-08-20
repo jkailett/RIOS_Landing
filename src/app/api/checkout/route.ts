@@ -97,6 +97,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Total tidak valid" }, { status: 400 });
     }
 
+    // Pastikan MAYAR_API_KEY tersedia
+    const apiKey = process.env.MAYAR_API_KEY;
+    if (!apiKey) {
+      console.error("MAYAR_API_KEY is not configured");
+      return NextResponse.json(
+        { error: "Konfigurasi payment gateway tidak lengkap. Hubungi admin." },
+        { status: 500 }
+      );
+    }
+
     // Buat payment link Mayar
     const amountRupiah = total * 1000; // base rates in thousand IDR -> Rupiah
     const packageName = `RIOS-${packageId}`;
@@ -107,11 +117,11 @@ export async function POST(req: NextRequest) {
     const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://rioskreasindo.site"}/?payment=success`;
 
     const mayarRes = await fetch(MAYAR_API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${process.env.MAYAR_API_KEY || ""}`,
-          },
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
       body: JSON.stringify({
         name: linkName,
         amount: amountRupiah,
