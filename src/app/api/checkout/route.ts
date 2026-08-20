@@ -107,12 +107,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Buat payment link Mayar (unique name per request)
+    // Buat payment link Mayar (unique name per request — prevent 409 conflict)
     const amountRupiah = total * 1000; // base rates in thousand IDR -> Rupiah
     const packageName = `RIOS-${packageId}`;
     const suffix = existingClient ? "Renewal" : "New";
-    const linkName = `${packageName}-${months}mo-${suffix}`;
-    const orderId = `RIOS-${Date.now().toString(36).toUpperCase()}`;
+    const ts = Date.now().toString(36).toUpperCase();
+    const linkName = `${packageName}-${months}mo-${suffix}-${ts}`;
+    const orderId = `RIOS-${ts}`;
 
     const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://rioskreasindo.site"}/?payment=success&order=${orderId}`;
 
