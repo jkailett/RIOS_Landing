@@ -107,14 +107,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Buat payment link Mayar (unique name per request — prevent 409 conflict)
+    // Buat payment link Mayar — dengan breakdown harga yang jelas
     const amountRupiah = total * 1000; // base rates in thousand IDR -> Rupiah
-    const packageName = `RIOS-${packageId}`;
-    const suffix = existingClient ? "Renewal" : "New";
-    const ts = Date.now().toString(36).toUpperCase();
-    const linkName = `${packageName}-${months}mo-${suffix}-${ts}`;
-    const orderId = `RIOS-${ts}`;
+    const packageName = `RIOS ${packageId}`;
 
+    // Nama yang bersih & informatif untuk ditampilkan di Mayar payment page
+    const durasiLabel = `${months} Bulan`;
+    const diskonLabel = discount > 0 ? ` (Diskon ${discount}%)` : "";
+    const tipeLabel = existingClient ? `Perpanjangan` : `Baru`;
+    const displayName = `${packageName} - ${durasiLabel}${diskonLabel}`;
+
+    // Breakdown harga untuk description
+    const subLabel = existingClient ? "Biaya Langganan" : "Biaya Langganan + Setup";
+    const setupNote = existingClient
+      ? ""
+      : ` + Setup Fee (sekali) Rp${(setupFee * 1000).toLocaleString("id-ID")}`;
+    const descText =
+      `📦 ${packageName} — ${durasiLabel}\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `💰 Biaya Langganan: Rp${(subscriptionTotal * 1000).toLocaleString("id-ID")}${diskonLabel}\n` +
+      (existingClient ? "" : `🔧 Setup Fee (sekali): Rp${(setupFee * 1000).toLocaleString("id-ID")}\n`) +
+      `📋 Status: ${tipeLabel}\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `💳 Total Pembayaran: Rp${(total * 1000).toLocaleString("id-ID")}\n`;
+
+    const orderId = `RIOS-${Date.now().toString(36).toUpperCase()}`;
     const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://rioskreasindo.site"}/?payment=success&order=${orderId}`;
 
     const mayarRes = await fetch(MAYAR_API_URL, {
@@ -124,10 +141,11 @@ export async function POST(req: NextRequest) {
         "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        name: linkName,
+        name: displayName,
         amount: amountRupiah,
+        description: descText,
         redirectUrl,
-        notes: linkName.slice(0, 24),
+        notes: `RIOS-${packageId}-${months}mo`,
       }),
     });
 
