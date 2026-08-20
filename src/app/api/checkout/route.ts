@@ -111,11 +111,13 @@ export async function POST(req: NextRequest) {
     const amountRupiah = total * 1000; // base rates in thousand IDR -> Rupiah
     const packageName = `RIOS ${packageId}`;
 
-    // Nama yang bersih & informatif untuk ditampilkan di Mayar payment page
+    // Nama unik (pakai timestamp biar gak 409 conflict)
+    const ts = Date.now().toString(36).toUpperCase();
     const durasiLabel = `${months} Bulan`;
     const diskonLabel = discount > 0 ? ` (Diskon ${discount}%)` : "";
     const tipeLabel = existingClient ? `Perpanjangan` : `Baru`;
     const displayName = `${packageName} - ${durasiLabel}${diskonLabel}`;
+    const linkName = `${displayName} (${ts})`;
 
     // Breakdown harga untuk description
     const subLabel = existingClient ? "Biaya Langganan" : "Biaya Langganan + Setup";
@@ -141,7 +143,7 @@ export async function POST(req: NextRequest) {
         "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        name: displayName,
+        name: linkName,
         amount: amountRupiah,
         description: descText,
         redirectUrl,
